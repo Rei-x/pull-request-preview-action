@@ -1,0 +1,45 @@
+name: 'Your name here'
+description: 'Provide a description here'
+author: 'Your name or organization here'
+inputs:
+  GITHUB_TOKEN:
+    description: 'The GitHub token to use for authentication'
+    required: true
+  ports:
+    description: 'Ports to expose, separated by comma'
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - name: Add info about starting new preview
+      uses: marocchino/sticky-pull-request-comment@v2
+      with:
+        recreate: true
+        number: ${{ github.event.issue.number || github.event.pull_request.number }}
+        GITHUB_TOKEN: ${{ inputs.GITHUB_TOKEN }}
+        message: |
+          **🖼️ Preview Environment:** _Starting..._
+
+    - name: Extract current commit
+      id: sha
+      uses: actions/github-script@v6
+      with:
+        result-encoding: string
+        script: |
+          const { owner, repo, number: pull_number } = context.issue;
+          const pr = await github.rest.pulls.get({
+            owner,
+            repo,
+            pull_number,
+          });
+          return pr.data.head.sha
+
+    - name: Start frontend tunnel
+      id: expose-tunnel
+      uses: Rei-x/expose-localtunnel-action@v1
+      with:
+        ports: ${{ inputs.ports }}
+
+    - uses: actions/checkout@v3
+      with:
+        ref: ${{ steps.sha.outputs.result }}

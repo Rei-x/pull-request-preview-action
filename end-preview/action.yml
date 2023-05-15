@@ -1,0 +1,61 @@
+name: 'End preview'
+description: 'Provide a description here'
+author: 'Your name or organization here'
+inputs:
+  GITHUB_TOKEN:
+    description: 'The GitHub token to use for authentication'
+    required: true
+  url:
+    description: 'The URL to the preview environment'
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - name: Comment PR
+      uses: marocchino/sticky-pull-request-comment@v2
+      with:
+        number: ${{ github.event.issue.number || github.event.pull_request.number }}
+        recreate: true
+        GITHUB_TOKEN: ${{ inputs.GITHUB_TOKEN }}
+        message: |
+          **🖼️ Preview Environment:** ${{ inputs.url }}
+
+            You can stop the preview by clicking "Cancel" on the [GitHub Action](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}).
+
+    - name: Wait for 60 minutes before timing out (unless overwritten)
+      run: |
+        echo "Tunnel URL is ${{ inputs.url }}"
+        timeout 61m sleep 3600
+        # Gracefully exit if the timeout hits.
+        exit 0
+      shell: bash
+
+    - name: Close comment
+      uses: marocchino/sticky-pull-request-comment@v2
+      if: ${{ success() }}
+      with:
+        recreate: true
+        number: ${{ github.event.issue.number || github.event.pull_request.number }}
+        GITHUB_TOKEN: ${{ inputs.GITHUB_TOKEN }}
+        message: |
+          🖼️ Preview Environment exceeded the maximum time of 60 minutes. To start it again, comment `/preview` on this PR.
+
+    - name: Close comment when cancelled
+      uses: marocchino/sticky-pull-request-comment@v2
+      if: ${{ cancelled() }}
+      with:
+        recreate: true
+        number: ${{ github.event.issue.number || github.event.pull_request.number }}
+        GITHUB_TOKEN: ${{ inputs.GITHUB_TOKEN }}
+        message: |
+          🖼️ Preview Environment was cancelled (because of newer preview or manual cancellation). To start it again, comment `/preview` on this PR.
+
+    - name: Close comment when failed
+      uses: marocchino/sticky-pull-request-comment@v2
+      if: ${{ failure() }}
+      with:
+        recreate: true
+        number: ${{ github.event.issue.number || github.event.pull_request.number }}
+        GITHUB_TOKEN: ${{ inputs.GITHUB_TOKEN }}
+        message: |
+          🖼️ Preview Environment failed to start. You can see more info here [GitHub Action](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}). To start it again, comment `/preview` on this PR.

@@ -1,0 +1,65 @@
+name: 'Check for preview comment'
+description: 'Provide a description here'
+author: 'Your name or organization here'
+outputs:
+  triggered: 
+    description: 'Whether the comment was a command'
+    value: ${{ steps.check.outputs.triggered }}
+  triggered_by_ci:
+    description: 'Whether the comment was a CI command'
+    value: ${{ steps.checkCI.outputs.triggered }}
+inputs:
+  trigger:
+    description: 'The comment trigger to look for'
+    default: '/preview'
+  GITHUB_TOKEN:
+    description: 'The GitHub token to use for authentication'
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - name: Check if the comment was a command, and react with 👀 if it was
+      if: github.event.issue.pull_request
+      uses: famly/pull-request-comment-trigger@master
+      id: check
+      with:
+        trigger: ${{ inputs.trigger }}
+        reaction: eyes
+        prefix_only: true
+      env:
+        GITHUB_TOKEN: ${{ inputs.GITHUB_TOKEN }}
+    - name: Check if it was CI comment
+      if: github.event.issue.pull_request
+      uses: famly/pull-request-comment-trigger@master
+      id: checkCI
+      with:
+        trigger: "/preview CI"
+      env:
+        GITHUB_TOKEN: ${{ inputs.GITHUB_TOKEN }}
+    - name: Check if it was pull request open to main branch
+      if: github.event_name == 'pull_request'
+      uses: marocchino/sticky-pull-request-comment@v2
+      with:
+        recreate: true
+        number: ${{ github.event.issue.number || github.event.pull_request.number }}
+        GITHUB_TOKEN: ${{ inputs.GITHUB_TOKEN }}
+        message: |
+          /preview CI
+    - name: Hide preview comment
+      uses: actions/github-script@v6
+      if: ${{ steps.checkCI.outputs.triggered != 'true' }}
+      with:
+        result-encoding: string
+        github-token: ${{ inputs.GITHUB_TOKEN }}
+        script: |
+          const { node_id } = context.payload.comment; 
+
+          const query = `
+            mutation minimizeComment($id: ID!) {
+              minimizeComment(input: { classifier: OUTDATED, subjectId: $id }) {
+                clientMutationId
+              }
+            }
+          `;
+
+          await github.graphql(query, { id: node_id });

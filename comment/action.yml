@@ -47,7 +47,7 @@ runs:
           /preview CI
     - name: Hide preview comment
       uses: actions/github-script@v6
-      if: ${{ steps.checkCI.outputs.triggered != 'true' }}
+      if: ${{ steps.checkCI.outputs.triggered != 'true' && steps.check.outputs.triggered == 'true' }}
       with:
         result-encoding: string
         github-token: ${{ inputs.GITHUB_TOKEN }}

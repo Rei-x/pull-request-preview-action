@@ -32,7 +32,7 @@ runs:
 
     - name: Close comment
       uses: marocchino/sticky-pull-request-comment@v2
-      if: ${{ success() }}
+      if: success()
       with:
         recreate: true
         number: ${{ github.event.issue.number || github.event.pull_request.number }}
@@ -42,7 +42,7 @@ runs:
 
     - name: Close comment when cancelled
       uses: marocchino/sticky-pull-request-comment@v2
-      if: ${{ cancelled() }}
+      if: cancelled()
       with:
         recreate: true
         number: ${{ github.event.issue.number || github.event.pull_request.number }}
@@ -52,7 +52,7 @@ runs:
 
     - name: Close comment when failed
       uses: marocchino/sticky-pull-request-comment@v2
-      if: ${{ failure() }}
+      if: failure()
       with:
         recreate: true
         number: ${{ github.event.issue.number || github.event.pull_request.number }}

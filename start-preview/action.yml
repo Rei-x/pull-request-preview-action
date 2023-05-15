@@ -24,6 +24,7 @@ runs:
       id: sha
       uses: actions/github-script@v6
       with:
+        github-token: ${{ inputs.GITHUB_TOKEN }}
         result-encoding: string
         script: |
           const { owner, repo, number: pull_number } = context.issue;

@@ -59,7 +59,7 @@ jobs:
           message: |
             **🖼️ Preview Environment:** _Starting app..._
       - name: Starting app
-        run: npx serve -l 3000
+        run: npx serve -l 3000 &
 
       - uses: ./end-preview
         with:

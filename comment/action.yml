@@ -4,7 +4,10 @@ author: 'Your name or organization here'
 outputs:
   triggered: 
     description: 'Whether the comment was a command'
-    value: ${{ steps.check.outputs.triggered }} || ${{ steps.checkCI.outputs.triggered }}
+    value: ${{ steps.check.outputs.triggered }}
+  triggered_by_ci:
+    description: 'Whether the comment was a CI command'
+    value: ${{ steps.checkCI.outputs.triggered }}
 inputs:
   trigger:
     description: 'The comment trigger to look for'
@@ -25,11 +28,25 @@ runs:
         prefix_only: true
       env:
         GITHUB_TOKEN: ${{ inputs.GITHUB_TOKEN }}
-    - name: Check if it was pull request
+        
+    - name: Check if it was CI comment
+      if: github.event.issue.pull_request
+      uses: famly/pull-request-comment-trigger@master
       id: checkCI
+      with:
+        trigger: "/preview CI"
+      env:
+        GITHUB_TOKEN: ${{ inputs.GITHUB_TOKEN }}
+
+    - name: Check if it was pull request open to main branch
       if: github.event_name == 'pull_request'
-      run: echo "triggered=true" >> "$GITHUB_OUTPUT"
-      shell: bash
+      uses: marocchino/sticky-pull-request-comment@v2
+      with:
+        recreate: true
+        number: ${{ github.event.issue.number || github.event.pull_request.number }}
+        GITHUB_TOKEN: ${{ inputs.GITHUB_TOKEN }}
+        message: |
+          /preview CI
 
     - name: Hide preview comment
       uses: actions/github-script@v6

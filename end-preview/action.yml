@@ -11,6 +11,11 @@ inputs:
 runs:
   using: "composite"
   steps:
+    - name: Get password
+      id: ipv4
+      run: echo "::set-output name=ipv4::$(curl -s ipv4.icanhazip.com)"
+      shell: bash
+
     - name: Comment PR
       uses: marocchino/sticky-pull-request-comment@v2
       with:
@@ -19,6 +24,7 @@ runs:
         GITHUB_TOKEN: ${{ inputs.GITHUB_TOKEN }}
         message: |
           **🖼️ Preview Environment:** ${{ inputs.url }}
+          **🔑 Password:** ${{ steps.ipv4.outputs.ipv4 }}
 
             You can stop the preview by clicking "Cancel" on the [GitHub Action](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}).
 

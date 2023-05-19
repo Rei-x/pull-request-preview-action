@@ -8,6 +8,22 @@ inputs:
   ports:
     description: 'Ports to expose, separated by comma'
     required: true
+outputs:
+  url-1:
+    description: 'URL of the first exposed port'
+    value: ${{ steps.expose-tunnel.outputs.url-1 }}
+  url-2:
+    description: 'URL of the second exposed port'
+    value: ${{ steps.expose-tunnel.outputs.url-2 }}
+  url-3:
+    description: 'URL of the third exposed port'
+    value: ${{ steps.expose-tunnel.outputs.url-3 }}
+  url-4:
+    description: 'URL of the fourth exposed port'
+    value: ${{ steps.expose-tunnel.outputs.url-4 }}
+  url-5:
+    description: 'URL of the fifth exposed port'
+    value: ${{ steps.expose-tunnel.outputs.url-5 }}
 runs:
   using: "composite"
   steps:
@@ -37,7 +53,7 @@ runs:
 
     - name: Start frontend tunnel
       id: expose-tunnel
-      uses: Rei-x/expose-localtunnel-action@v1
+      uses: Rei-x/expose-localtunnel-action@main
       with:
         ports: ${{ inputs.ports }}
 

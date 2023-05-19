@@ -59,9 +59,10 @@ jobs:
           message: |
             **🖼️ Preview Environment:** _Starting app..._
       - name: Starting app
-        run: npx serve
+        run: npx serve -l 3000
 
       - uses: ./end-preview
         with:
           GITHUB_TOKEN: ${{ secrets.CI_GITHUB_TOKEN }}
+          url: ${{ steps.tunnel-url.outputs.url-1 }}
 

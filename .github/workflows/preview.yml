@@ -61,8 +61,7 @@ jobs:
       - name: Starting app
         run: npx serve -l 3000 &
 
-      - name: go up
-        run: cd ..
+      - uses: actions/checkout@v3
 
       - uses: ./end-preview
         with:

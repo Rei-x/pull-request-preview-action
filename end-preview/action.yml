@@ -23,10 +23,15 @@ runs:
         recreate: true
         GITHUB_TOKEN: ${{ inputs.GITHUB_TOKEN }}
         message: |
-          **🖼️ Preview Environment:** ${{ inputs.url }}
-          **🔑 Password:** ${{ steps.ipv4.outputs.ipv4 }}
+          **🖼️ Preview Environment:**
+          ${{ inputs.url }}
+          
+          **🔑 Password** 
+          ```
+          ${{ steps.ipv4.outputs.ipv4 }}
+          ```
 
-            You can stop the preview by clicking "Cancel" on the [GitHub Action](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}).
+          You can stop the preview by clicking "Cancel" on the [GitHub Action](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}).
 
     - name: Wait for 60 minutes before timing out (unless overwritten)
       run: |

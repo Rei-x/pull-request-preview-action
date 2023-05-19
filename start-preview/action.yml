@@ -50,6 +50,9 @@ runs:
             pull_number,
           });
           return pr.data.head.sha
+    - uses: actions/checkout@v3
+      with:
+        ref: ${{ steps.sha.outputs.result }}
 
     - name: Start frontend tunnel
       id: expose-tunnel
@@ -57,6 +60,4 @@ runs:
       with:
         ports: ${{ inputs.ports }}
 
-    - uses: actions/checkout@v3
-      with:
-        ref: ${{ steps.sha.outputs.result }}
+

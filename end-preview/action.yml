@@ -20,12 +20,11 @@ runs:
       uses: marocchino/sticky-pull-request-comment@v2
       with:
         number: ${{ github.event.issue.number || github.event.pull_request.number }}
-        recreate: true
         GITHUB_TOKEN: ${{ inputs.GITHUB_TOKEN }}
         message: |
           **🖼️ Preview Environment:**
           ${{ inputs.url }}
-          
+
           **🔑 Password** 
           ```
           ${{ steps.ipv4.outputs.ipv4 }}
